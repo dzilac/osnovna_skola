@@ -5,7 +5,27 @@ const cors = require('cors');
 const app = express();
 
 
-app.use(cors());
+const cors = require("cors");
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://osnovna-skola.netlify.app"
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Dozvoli bez origin headera (npr. Postman) ili ako je na listi
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use('/api/parents', require('./routes/parentRoutes'));
 app.use('/api/items', require('./routes/items'));
@@ -19,7 +39,7 @@ app.use('/api/activities', require('./routes/activities'));
 app.use('/api/private-lessons', require('./routes/privateLessons'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/location', require('./routes/location'));
-
+ 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB error:', err));
